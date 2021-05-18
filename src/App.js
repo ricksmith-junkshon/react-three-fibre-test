@@ -1,10 +1,13 @@
 import React, { useRef, useState } from "react";
 //R3F
-import { Canvas, useFrame, meshStandardMaterial } from "react-three-fiber";
+import { Canvas, useFrame, meshStandardMaterial, texture } from "react-three-fiber";
+// import { Text } from 'troika-3d-text'
 // Deai - R3F
-import { softShadows, MeshWobbleMaterial, OrbitControls, OrthographicCamera, Text, Html } from "@react-three/drei";
+import { RGBFormat,softShadows, MeshWobbleMaterial, OrbitControls, OrthographicCamera, Html, Text } from "@react-three/drei";
 
-import {THREE} from 'three'
+// import {THREE} from 'three'
+
+import img from './VirtualNode.jpeg'
 //Components
 // import Header from "./components/header";
 // Styles
@@ -18,49 +21,52 @@ softShadows();
 
 const NodeMesh = ({ position, color, speed, args, index }) => {
   //ref to target the mesh
-  // const mesh = useRef();
+  const mesh = useRef();
 
   //useFrame allows us to re-render/update rotation on each frame
   // useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01));
 
   //Basic expand state
   const [expand, setExpand] = useState(false);
+  const [hovered, setHovered] = useState(false)
   // React spring expand animation
   const props = useSpring({
     scale: expand ? [1.4, 1.4, 1.4] : [1, 1, 1],
   });
 
-  
-    // configure font geometry
-    const textOptions = {
-      font: 'sans',
-      size: 5,
-      height: 1
-    };
   return (
     <a.mesh
       position={position}
-      // ref={mesh}
+      ref={mesh}
       onClick={() => setExpand(!expand)}
+      onmouseenter={() => setHovered(true)}
       scale={props.scale}
       castShadow>
-      {/* <textGeometry attach='geometry' args={['three.js', textOptions]} /> */}
+        {expand ? <Html center={true}>
+        <div class="indicator">
+          NodeNo: {index}
+        </div>
+      </Html> : null}
       <boxBufferGeometry attach='geometry' args={args} />
-      {/* <Text>
-        Test */}
+      {/* <Text fontSize={0.5} letterSpacing={0.1}>
+        test123 */}
         <meshStandardMaterial
           color={color}
           speed={speed}
           attach='material'
           factor={0.6}
         />
-        <Html center={true} transform={true} sprite={true}>
+      {/* </Text> */}
+          {/* <Text
+            color="black" // default
+            anchorX="center" // default
+            anchorY="middle" // default
+            >Test</Text> */}
+        <Html center={true} transform={true} sprite={true} prepend={true} eps={true}>
         <div class="content">
           {index}
         </div>
       </Html>
-      {/* </Text> */}
-      {/* <div>Test</div> */}
     </a.mesh>
   );
 };
@@ -68,13 +74,13 @@ const NodeMesh = ({ position, color, speed, args, index }) => {
 const MultiBoxes = (props) => {
   return props.nodes.map((a, i) => {
     const rows = Math.floor(i / 24);
-    const positionX = (i * 4) - ((rows * 24) * 4)
-    const positionZ = rows * 4;
-    console.log(positionX, positionZ, i)
+    const positionX = (((i + 1) * 7) - (12.5 * 7)) - (rows * (7 * 24))
+    const positionZ = rows * 7;
     return <NodeMesh
       position={[positionX, 1, positionZ]}
       color='lightblue'
       args={[3, 1, 3]}
+      index={i+1}
       // speed={2}
     />
   })
@@ -88,9 +94,8 @@ const App = () => {
       <Canvas
         colorManagement
         shadowMap
-        camera={{ position: [-5, 12, 80], fov: 30 }}>
+        camera={{ position: [-5, 50, 120], fov: 30 }}>
         <Controls />
-        <Text>test</Text>
         {/* This light makes things look pretty */}
         <ambientLight intensity={0.3} />
         {/* Our main source of light, also casting our shadow */}
@@ -111,30 +116,14 @@ const App = () => {
         <pointLight position={[0, -10, 0]} intensity={1.5} />
         <group>
           {/* This mesh is the plane (The floor) */}
-          <mesh
+          {/* <mesh
             rotation={[-Math.PI / 2, 0, 0]}
             position={[20, -3, 0]}
             receiveShadow>
-            <planeBufferGeometry attach='geometry' args={[100, 100]} />
-            <shadowMaterial attach='material' opacity={0.3} />
-          </mesh>
-          {testArr.map((a, i) => {
-              const totalRows = (testArr.length / 25) * 4;
-              // const offSetX = (testArr.length <= 25 ? 12.5 : Math.round(testArr.length / 2))
-              const rows = Math.floor(i / 24);
-              const positionX = ((i * 4) - ((rows * 24) * 4)) - (7 * 12);
-              const positionZ = rows * 4;
-              console.log(positionX, positionZ)
-              return <NodeMesh
-                position={[positionX, 1, positionZ]}
-                color='lightblue'
-                args={[3, 1, 3]}
-                speed={2}
-                index={i}
-              />
-
-          })}
+          </mesh> */}
           <MultiBoxes nodes={testArr}/>
+          <planeBufferGeometry attach='geometry' args={[100, 100]} />
+          <shadowMaterial attach='material' opacity={0.3} />
         </group>
       </Canvas>
     </>

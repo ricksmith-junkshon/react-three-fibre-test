@@ -41,3 +41,11 @@ Canvas {
   height: 100%;
   width: 100%;
 }
+
+.indicator {
+  border: 2px solid lightblue;
+  border-radius: 4px;
+  position: absolute;
+  top: -50px;
+  background-color: white;
+}
